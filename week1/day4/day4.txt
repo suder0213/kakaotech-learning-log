@@ -1,0 +1,49 @@
+RESTful API의 핵심: 동작이 아닌, 자원 중심으로 설계
+
+
+Pydantic ( BaseModel )
+- API로 들어오는 데이터의 타입과 형태를 정의
+- 데이터 클래스에 자동 검사 기능과 자동 타입 변환 기능 추가
+- 그 기초 설계도가 BaseModel
+
+Swagger: API 명세, 실행해볼 수 있는 툴 (FastAPI는 /docs 엔드포인트로 자동 생성)
+
+
+FastAPI: 파이썬으로 만드는 고성능 웹 API 프레임워크
+
+
+HTTPException: 에러를 상태코드와 함꼐 반환할 떄 사용
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+409 Conflict
+
+async def - 비동기 엔드포인트
+
+API 명세: API 사용법과 Requset, Response 구조를 명세하는 것
+
+Pydantic BaseModel
+- Python 타입 힌트를 사용해 데이터를 자동으로 검증해주는 라이브러리
+
+요청 스키마: 클라이언트가 보내는 데이터의 규격을 정의
+
+기본 BaseModel
+
+class MessageRequest(BaseModel):
+	user_id: int
+	content: str
+	language: Optional[str] = "ko"
+
+-> 타입 변화 불가능할 시 에러 반환
+
+Field로 세부조건 지정가능
+
+요청메시지, 응답 메시지를 따로 지정하여 보안성 강화 가능
+
+유효성 검증 심화
+- 이메일, 문자열 길이 검증
+EmailStr
+
+BaseModel로 BaseMessage를 만들고 그 BaseMessage를 상속받는 응답 요청 구조를 만들어 중복 코드 방지 가능, 일반 유저와 프리미엄 유저도 구분 가능
+

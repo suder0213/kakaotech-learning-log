@@ -1,0 +1,118 @@
+프로젝트가 커질 수록 기존 기능이 깨지는 경우 발생
+
+테스트: 어떤 입력을 넣었을 떄 기대한 결과가 나오는지 코드를 검증
+
+단위 테스트 (유닛 테스트): 개별 코드 단위 검증
+
+통합 테스트: 모듈 간
+
+시스템 테스트: 엔드 투 엔드
+
+인수 테스트: 비즈니스 요구사항
+
+
+
+유닛 테스트 <- 최소 검증 단위를 테스트
+
+FIRST 원칙
+Fast
+Independent
+Repeatable
+Self-validating
+Timely
+
+테스트 3단계 핵심 구조 AAA
+Arrange
+Act
+Assert
+
+
+pytest 프레임 워크 <- 파이썬 커뮤니티에서 가장 권장됨
+
+테스트 6단계
+기초검증 -> 에외처리 -> 효율화 -> 고립화 -> 완성도 측정 -> 심화 테스트
+
+메소드 이름 앞에 test_ 나 뒤에 _test를 붙여야 pytest가 집계할 수 있음
+
+테스트는 성공만이 아닌, 올바른 실패를 검증하는 것이기도 함 (의도한 에러 발생)
+
+잘못된 입력에서 올바르게 실패하는지에 대한 엣지 케이스도 검증해야 함
+
+with pytest.raises() <- 반드시 예외가 발생해야 함
+
+버그는 보통 가장자리에 숨어있어 엣지 케이스를 공략해야 함
+
+데코레이터: 함수 앞에 붙여서 기능 추가
+
+fixture - 사전 준비
+테스트 전 필요한 준비 작업 (디비 연결, 객체 생성) 한 번만 정의
+@pytest.fixture
+
+parametrize - 대량 검증
+하나의 테스트 함수에 여러개의 입력값, 기대값 세트 주입해서 반복 코드 제거 
+# 주의, 인자는 쉼표로 구분된 하나의 문자열
+@pytest.ark.parametrize("a, b, expected", [ (1,2,3), (0,0,0) .... ]
+)
+-> 케이스 추가를 튜플 한 줄로 끝냄
+
+@pytest.mark.skip
+@pytest.mark.skipif
+@pytest.mark.xfail
+
+목데이터: 서버가 외부 요인에 흔들리지 않게 순수 로직만 검증, 가짜 객체로 실제 환경으로부터 완전 고립
+
+mock 최소형 가짜, 매직 메서드 막힘
+magicmock mock+ 매직 메서드
+patch 가짜를 꽂는 도구, 실제 코드 위치에 가짜를 꽂음(매직목)
+
+직접 임포트하는건 보통 패치
+
+# weather.py
+import requests
+
+def get_temperature(city: str) -> int:
+    response = requests.get(f"https://api.weather.com/{city}")
+    data = response.json()
+    return data["temperature"]
+
+
+# test_weather.py
+
+# test_weather.py
+from unittest.mock import patch
+from weather import get_temperature
+
+# test_get_temperature: Mock으로 온도 24 설정 → 반환값 검증
+def test_get_temperature():
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"temperature": 24}
+        result = get_temperature("Seoul")
+        assert result == 24
+        
+
+
+# test_get_temperature_url: Mock 호출 시 올바른 URL이 사용되었는지 검증
+def test_get_temperature_url():
+    with patch("requests.get") as mock_get:
+        get_temperature("Seoul")
+        mock_get.assert_called_once_with("https://api.weather.com/Seoul")
+
+
+# test_get_temperature_cold: Mock으로 영하 온도 설정 → 정상 반환 검증
+def test_get_temperature_cold():
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"temperature": -5}
+        result = get_temperature("Seoul")
+        assert result == -5
+
+
+
+테스트 커버러지: 내 코드 중 테스트가 수행된 비율을 수치와 시각적 리포트로 확인
+pytest --cov=my_project
+
+pytest --cov=myapp --cov-report=term-missing
+pytest --cov=myapp --cov-report=term-missing --cov-report=html
+pytest --cov=myapp --cov-report=xml --cov-fail-under=80 --cov-branch
+
+비동기 로직 검증: async/await가 포함된 비동기 함수의 동작을 정확하게 대기하고 검증
+모던 웹의 핵심

@@ -1,0 +1,62 @@
+동기와 비동기
+
+동기: 하나의 작업이 수행되는 동안 다른 작업을 수행할 수 없음
+비동기: 여러개의 쓰레드에 작업을 할당
+
+하지만 파이썬은 인터프리터 언어로 인해 쓰레드에 각자 작업을 할당해도 하나에 하나의 쓰레드만 실행할 수 있는 태생적 한계가 있음
+
+-> 비동기 async
+CPU bound, IO bound 등 이 대기 시간 동안 다른 작업을 수행할 수 있도록 제어권을 넘겨주는 것
+
+멀티프로세싱: 여러개의 프로세스
+멀티쓰레딩: 여러개의 쓰레드
+비동기: 하나의 프로세스, 쓰레드에서 영리하게 작업 할당
+
+파이썬 비동기: asyncio 라이브러리 사용
+
+코루틴, 태스크, 루프로 구성
+
+함수앞에 async 선언 후 실행 시 코루틴 객체 생성 -> 호출해도 바로 실행되는 것이 아님 -> 런타임 에러 발생
+
+async 선언시 await 키워드 사용가능
+
+await -> 작업이 끝날 때 마다 기다리되, 다른 작업이 있다면 그걸 먼저 수행
+
+async로 선언된 함수는 일반적인 호출이 아닌 asyncio.run(func) 안에 넣어서 실행
+
+await <-> create_task
+await: 작업을 순차적으로 실행해야할 때
+create_task: 여러 작업을 동시에 수행
+create_task로 작업을 수행하고 await로 필요한 시점에 task 결과를 가져오는것이 일반적인 패턴
+
+
+
+
+
+
+
+-------------------- 예시 코드 --------------------------
+import asyncio
+
+# save_log 비동기 함수를 작성하세요
+async def save_log(message: str):
+    await asyncio.sleep(1)
+
+    print(f"[로그 저장 완료] {message}")
+
+# process_request 비동기 함수를 작성하세요
+async def process_request(name: str):
+    print(f"요청 {name} 처리 시작")
+    asyncio.create_task(save_log(f"{name} 로그"))
+    await asyncio.sleep(2)
+    print(f"요청 {name} 처리 완료")
+
+
+async def main():
+    # process_request를 호출하세요
+    await process_request("주문-001")
+    # 백그라운드 작업 완료 대기
+    await asyncio.sleep(1)
+    print("모든 작업 종료")
+
+asyncio.run(main())

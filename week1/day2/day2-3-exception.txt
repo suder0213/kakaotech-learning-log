@@ -1,0 +1,50 @@
+asyncio.gather(return_exceptions=True) -> 기본적으로 다른 태스크는 문제없이 실행되도록 예외처리를 함 (예외를 반환 가능한 결과값 하나로 취급)
+
+기본 gather, return_exceptions_True, TaskGroup은 예외처리를 다루는 방법이 다 다름
+
+비동기 time out -> 예상치 못한 비정상적인 지연을 적절히 끊어주는 역할 
+
+asyncio.wait_for( slow_task(), timeout = 2.0 )
+2초안에 끝나지 않으면 TimeoutError 발생
+
+실무에선 timeout이 필수 ( 빠른 피드백, 리소스 방어 )
+
+
+
+-- 예외 및 타임아웃 처리 예시 ---
+
+import asyncio
+
+# call_api 비동기 함수를 작성하세요
+async def call_api(name: str, response_time: int) -> str:
+    print(f"{name} 호출 시작")
+    await asyncio.sleep(response_time)
+    return f"{name} 응답 수신 ({response_time}초)"
+# safe_call 비동기 함수를 작성하세요
+#  - asyncio.wait_for()로 타임아웃을 설정
+#  - asyncio.TimeoutError를 try/except로 처리
+async def safe_call(name: str, response_time: int, timeout: int) -> dict:
+    try:
+        result = await asyncio.wait_for(call_api(name, response_time), timeout=timeout)
+        return {"name": name, "status": "성공", "data": result}
+    except asyncio.TimeoutError:
+        return {"name": name, "status": "타임아웃", "data": f"{timeout}초 초과"}
+
+# main 함수를 완성하세요
+async def main():
+    # 3개 API를 gather로 동시에 호출하세요
+    tasks = [safe_call("결제API", response_time=1, timeout=3),
+    safe_call("재고API", response_time=5, timeout=2),
+    safe_call("배송API", response_time=2, timeout=3)]
+
+    results = await asyncio.gather(*tasks, return_exceptions = True)
+
+    # 결과를 순회하며 출력합니다.
+    for r in results:
+        if r["status"] == "성공":
+            print(f"[성공] {r['name']}: {r['data']}")
+        else:
+            print(f"[타임아웃] {r['name']}: {r['data']}")
+
+
+asyncio.run(main())
