@@ -1,9 +1,30 @@
-# Week 1 학습 요약
+**해당 학습일지는 AI를 사용해 week1 폴더의 내용들을 요약하여 작성, 검토하며 학습했음을 명시합니다.**
+
+**모든 내용을 넣기보다는, 새로 배운 내용이나 핵심이라고 생각되는 내용만 추려서 정리했습니다.**
+
+
+# 📒 Week 1 학습 요약
 
 ## Day 1 - 객체지향 프로그래밍 (OOP)
 
 **Early Return 패턴**
 - 실패 조건을 먼저 걸러내어 중첩 if문을 줄이고 핵심 로직에 집중하는 패턴
+
+```python
+# Early Return 미적용
+def process(user):
+    if user:
+        if user.is_active:
+            return do_something(user)
+
+# Early Return 적용
+def process(user):
+    if not user:
+        return
+    if not user.is_active:
+        return
+    return do_something(user)
+```
 
 **OOP 핵심 개념**
 
@@ -13,6 +34,31 @@
 | 상속 | 부모 클래스의 속성·메서드 재사용, `super()`로 부모 기능 호출, 오버라이딩 가능 |
 | 다형성 | 같은 메서드가 클래스마다 다르게 동작 |
 | 추상화 | 불필요한 세부 사항을 감추고 설계도 역할 수행 |
+
+```python
+class Animal:
+    def speak(self):  # 추상화: 구체 구현은 하위 클래스에 위임
+        raise NotImplementedError
+
+class Dog(Animal):
+    def __init__(self, name):
+        self._name = name  # 캡슐화: 외부 직접 접근 금지
+
+    @property
+    def name(self):
+        return self._name
+
+    def speak(self):  # 오버라이딩 (다형성)
+        return "Woof"
+
+class Cat(Animal):
+    def speak(self):  # 다형성: 같은 메서드, 다른 동작
+        return "Meow"
+
+animals = [Dog("Rex"), Cat()]
+for a in animals:
+    print(a.speak())  # Woof / Meow
+```
 
 ---
 
@@ -25,6 +71,24 @@
 - `async def`로 코루틴 선언, `await`로 제어권 양보
 - `create_task`: 여러 작업을 동시 등록 / `await`: 결과가 필요한 시점에 대기
 
+```python
+import asyncio
+
+async def fetch(name, delay):
+    await asyncio.sleep(delay)  # 대기 중 제어권 양보
+    return f"{name} 완료"
+
+async def main():
+    # gather: 독립적인 작업 동시 실행 (총 소요 ≈ max(delay))
+    results = await asyncio.gather(
+        fetch("작업A", 1),
+        fetch("작업B", 2),
+    )
+    print(results)  # ['작업A 완료', '작업B 완료']
+
+asyncio.run(main())
+```
+
 **동시 실행 도구**
 
 | 도구 | 용도 |
@@ -34,10 +98,25 @@
 | `asyncio.wait_for()` | 타임아웃 설정 — 실무에서 필수 (빠른 피드백, 리소스 방어) |
 | `asyncio.Semaphore()` | 동시 요청 수 제한 (DB 커넥션 풀, 외부 API 호출 제어) |
 
+```python
+# wait_for: 타임아웃
+result = await asyncio.wait_for(fetch("API", 5), timeout=2.0)
+# → 2초 내 응답 없으면 TimeoutError 발생
+
+# Semaphore: 동시 실행 수 제한
+sem = asyncio.Semaphore(3)  # 최대 3개만 동시 통과
+
+async def limited_fetch(url):
+    async with sem:
+        ...
+```
+
 **비동기 3가지 함정**
 1. `await` 누락
 2. `time.sleep()` 등 동기 sleep 사용 (`asyncio.sleep()` 사용해야 함)
 3. 동기 라이브러리 혼용 (불가피할 경우 `loop.run_in_executor()` 사용)
+
+---
 
 ### 테스트 (pytest)
 
@@ -54,6 +133,37 @@
 | `@pytest.mark.parametrize` | 하나의 테스트에 여러 입력값·기대값 세트 주입 |
 | `unittest.mock.patch` | 외부 의존성(HTTP, DB)을 가짜 객체로 대체해 순수 로직만 검증 |
 | `pytest --cov` | 테스트 커버리지 측정 |
+
+```python
+import pytest
+from unittest.mock import patch
+
+# fixture: 공통 준비 객체 재사용
+@pytest.fixture
+def user():
+    return {"id": 1, "name": "Alice"}
+
+# parametrize: 케이스 추가를 튜플 한 줄로
+@pytest.mark.parametrize("a, b, expected", [
+    (1, 2, 3),
+    (0, 0, 0),
+    (-1, 1, 0),
+])
+def test_add(a, b, expected):
+    assert a + b == expected
+
+# raises: 의도한 예외 검증
+def test_divide_by_zero():
+    with pytest.raises(ZeroDivisionError):
+        1 / 0
+
+# mock.patch: 외부 HTTP 호출을 가짜로 대체
+def test_get_temperature():
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"temperature": 24}
+        result = get_temperature("Seoul")
+        assert result == 24
+```
 
 ---
 
@@ -94,6 +204,19 @@
 2. 소문자 사용, 계층은 `/`로 구분, 끝에 `/` 미사용
 3. 언더바(`_`) 대신 하이픈(`-`) 사용
 
+```
+# 잘못된 설계
+GET  /getUsers
+POST /createUser
+GET  /user_orders/
+
+# 올바른 설계
+GET    /users
+POST   /users
+GET    /users/{id}/orders
+DELETE /users/{id}
+```
+
 ---
 
 ## Day 4 - FastAPI & Pydantic
@@ -105,6 +228,32 @@
 - `Field()`로 세부 조건(길이, 범위 등) 지정
 - 요청 스키마와 응답 스키마를 분리하여 보안성 강화
 - 공통 BaseModel을 상속해 중복 코드 방지 가능
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import Optional
+
+app = FastAPI()
+
+# 공통 기반 → 요청/응답 스키마 분리
+class UserBase(BaseModel):
+    username: str = Field(min_length=2, max_length=20)
+    email: str
+
+class UserCreate(UserBase):
+    password: str  # 요청에만 포함
+
+class UserResponse(UserBase):
+    id: int        # 응답에만 포함 (password 노출 방지)
+
+@app.post("/users", response_model=UserResponse)
+async def create_user(body: UserCreate):
+    # body.username, body.email 자동 검증 완료
+    if already_exists(body.email):
+        raise HTTPException(status_code=409, detail="이미 존재하는 이메일")
+    return save_user(body)
+```
 
 **주요 HTTP 예외**
 
@@ -135,6 +284,21 @@
 | CHECK | 허용 값 범위 제한 |
 | PRIMARY KEY | 튜플 고유 식별, NULL·중복 불가 |
 | FOREIGN KEY | 다른 테이블 기본키 참조, 테이블 간 관계 정의 |
+
+```sql
+CREATE TABLE users (
+    id      INT           PRIMARY KEY,
+    email   VARCHAR(100)  NOT NULL UNIQUE,
+    age     INT           CHECK (age >= 0),
+    role    VARCHAR(20)   DEFAULT 'user'
+);
+
+CREATE TABLE orders (
+    id      INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)  -- 참조 무결성
+);
+```
 
 **무결성 제약 조건**
 - **개체 무결성**: 기본키는 NULL·중복 불가
