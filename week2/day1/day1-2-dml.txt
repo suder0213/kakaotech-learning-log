@@ -1,0 +1,20 @@
+LIKE - 특정 문가 포함된 문자열 찾기
+- LIKE '%문자열' : 와일드 카드. 문자열로 끝나는 것 SEARCH, 원하는 위치에 % 붙여서 검색가능
+
+ORDER BY 테이블명 (DESC/ASC): 정렬
+- 테이블명 DESC/ASC 로 내림차순과 오름차순으로 정렬가능
+
+INSERT INTO 테이블명(칼럼)
+VALUES( 추가할 데이터1, 2... );
+- 순서대로 입력시 칼럼 생략 가능
+
+UPDATE: 데이터를 수정할 때 사용
+UPDATE 테이블
+SET 칼럼명 = 칼럼값
+WHERE 조건;
+
+DELETE: 이미 저장된 값 삭제
+DELETE
+FROM 테이블
+WHERE 조건;
+

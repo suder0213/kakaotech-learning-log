@@ -1,0 +1,48 @@
+데이터 그룹짓기
+
+SELECT user_id, COUNT(*)
+FROM rental
+GROUP BY user_id;
+
+GROUP BY에 사용되는 칼럼은 반드시 SELECT 문에 포함되어야 함
+
+GROUP BY절에 조건도 부여 가능
+
+SELECT user_id, COUNT(*)
+FROM rental
+GROUP BY user_id
+HAVING COUNT(user_id) > 1;
+
+HAVING -> GROUP BY의 조건을 지정
+
+
+INNER JOIN: 두 테이블을 합쳐 정보를 한 번에 조회
+
+SELECT *
+FROM 테이블1
+INNER JOIN 테이블2;
+두 테이블을 연결할 칼럼을 기준으로 JOIN
+
+JOIN에 조건 사용
+SELECT *
+FROM 테이블1
+INNER JOIN 테이블2
+ON 테이블1.칼럼1 = 테이블2.칼럼2;
+- 테이블1의 칼럼1과 테이블2의 칼럼2가 같은 것을 기준으로 연결
+
+LEFT JOIN: 왼쪽 데이터의 정보를 보존하며 JOIN
+- 오른쪽 테이블에 해당하는 값이 업사면 NULL 값으로 채워서 합쳐 출력
+
+SELECT *
+FROM 테이블1
+LEFT JOIN 테이블2
+ON 테이블1.칼럼1 = 테이블2.칼럼2;
+- 테이블1의 모든 것을 출력하고 그 중 조건을 만족한다면 합쳐서 출력
+
+RIGHT JOIN: 오른쪽 테이블의 모든 값을 포함하여 연결
+
+SELECT *
+FROM 테이블1
+RIGHT JOIN 테이블2
+ON 테이블1.칼럼1 = 테이블2.칼럼2;
+- 테이블2의 모든 것을 출력하고 그 중 조건을 만족한다면 합쳐서 출력
