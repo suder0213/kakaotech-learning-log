@@ -1,0 +1,23 @@
+기본적인 비동기 처리는 처리 결과를 활용할 수 없음
+- 콜 스택이 빈 후에 콜백 함수가 호출됨
+- 에러 처리도 정상적으로 불가
+
+promise: new Promise(콜백 함수)와 같이 생성
+-resolve와 reject가 인수로 전달됨
+(비동기 처리 성공, 비동기 처리 실패)
+
+pending, fulfilled, rejected 상태를 가짐
+'resolve': pending -> fulfilled
+'reject': pending -> rejected
+
+then, catch, finally 메소드를 가짐
+보통 메서드 체이닝을 통해 3개가 같이 씀
+
+Promise.all vs Promise.allSettled
+
+마이크로태스크 큐: 태스크 큐보다 우선 순위가 높음
+-> 콜 스택에 먼저 들어감
+
+프로미스, 애이잭스 : 마이크로 태스크 큐
+타이머, 이벤트헨들러 : 태스크 큐
+
