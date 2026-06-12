@@ -1,0 +1,2 @@
+vercel, railway를 사용한 배포
+

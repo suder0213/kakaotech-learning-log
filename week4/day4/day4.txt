@@ -1,0 +1,22 @@
+CORS?
+
+기본으로는 Server Component
+사용자 인터랙션이 필요한 경우에만 Client Component
+
+.env.local 파일에 NEXT_PUBLIC <-- 클라이언트 코드에서 사용할 값임을 명시
+
+CORS: 브라우저가 Origin이 아닌 다른 출처의 서버에 요청할 떄 적용되는 보안 정책
+-> ORigin은 프로토콜 + 호스트 + 포트로 구성
+
+app.add_middleware로 허용할 출처 명시
+
+Direct Fetch와 Route Handler의 차이?
+
+axios: 브라우저와 Node.js에서 HTTP 요처을 보낼 수 있는 자바스크립트 라이브러리
+- 응답데이터가 자동으로 JSON으로 파싱 (res.json()호출 불필요)
+
+서버에서 데이터를 미리 필터링했을 때 이점
+1. URL이 곧 검색 상태
+2. 필요한 만큼만 전달
+3. 같은 패턴으로 기능 추가
+
