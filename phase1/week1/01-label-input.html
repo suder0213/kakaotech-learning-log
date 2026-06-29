@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Label vs No Label</title>
+  <style>
+    body { font-family: sans-serif; padding: 24px; }
+    section { border: 1px solid #ccc; padding: 16px; margin-bottom: 24px; border-radius: 8px; }
+    h2 { margin-top: 0; }
+    .hint { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .bad { border-color: #e74c3c; }
+    .good { border-color: #2ecc71; }
+    .warn { border-color: #f39c12; }
+  </style>
+</head>
+<body>
+
+<!-- ❌ Case 1: label 없이 input만 쓰는 경우 -->
+<section class="bad">
+  <h2>❌ label 없이 그냥 input</h2>
+  <p class="hint">
+    → 클릭 가능 영역이 input 박스뿐.<br>
+    → 스크린리더가 "이 입력칸이 무엇인지" 모름 (접근성 없음).<br>
+    → 자동완성도 힌트 부족.
+  </p>
+  이름: <input type="text" placeholder="이름 입력">
+</section>
+
+<!-- ✅ Case 2: label + for/id로 연결 -->
+<section class="good">
+  <h2>✅ label로 제대로 연결한 경우</h2>
+  <p class="hint">
+    → "이름" 텍스트를 클릭해도 input이 포커스됨 (클릭 영역 확장).<br>
+    → 스크린리더가 "이름 입력칸"이라고 읽어줌 (접근성 OK).<br>
+    → for="xxx" 와 id="xxx" 가 일치해야 연결됨.
+  </p>
+  <label for="username">이름</label>
+  <input type="text" id="username" name="username" placeholder="이름 입력">
+</section>
+
+<!-- ⚠️ Case 3: for/id 쌍이 안 맞는 경우 -->
+<section class="warn">
+  <h2>⚠️ for/id가 불일치하는 경우</h2>
+  <p class="hint">
+    → label의 for="wrong-id" 인데 input의 id="email" → 연결 안 됨.<br>
+    → "이메일" 텍스트를 클릭해도 input이 포커스되지 않음.<br>
+    → 시각적으로는 옆에 있어도 의미상 연결이 끊어짐.
+  </p>
+  <label for="wrong-id">이메일</label>       <!-- for가 틀림 -->
+  <input type="email" id="email" name="email" placeholder="이메일 입력">
+</section>
+
+<!-- 🔀 Case 4: label-input 두 쌍의 for/id를 엇갈리게 연결 -->
+<section class="bad">
+  <h2>🔀 for/id가 엇갈린 두 쌍</h2>
+  <p class="hint">
+    → "이름" 클릭 시 → 이메일 input이 포커스됨 (엉뚱한 칸으로 연결).<br>
+    → "이메일" 클릭 시 → 이름 input이 포커스됨.<br>
+    → 스크린리더도 "이름 편집 필드"라고 읽는데 실제로는 이메일 칸 → 혼란.<br>
+    → 시각적 순서와 논리적 연결이 달라서 UX/접근성 모두 망가짐.
+  </p>
+  <label for="cross-email">이름</label>         <!-- "이름"인데 for가 email을 가리킴 -->
+  <input type="text"  id="cross-name"  placeholder="이름 입력">
+
+  <br><br>
+
+  <label for="cross-name">이메일</label>        <!-- "이메일"인데 for가 name을 가리킴 -->
+  <input type="email" id="cross-email" placeholder="이메일 입력">
+</section>
+
+<!--
+  정리:
+  - label의 for  ↔  input의 id  : 클릭 연결 / 접근성
+  - input의 name              : 서버에 전송될 때 key 이름 (form submit 시 사용)
+  - id와 name은 다른 목적이므로 값이 달라도 됨
+-->
+
+</body>
+</html>

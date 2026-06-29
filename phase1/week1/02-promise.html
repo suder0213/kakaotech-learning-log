@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Promise 흐름 이해</title>
+  <style>
+    body { font-family: sans-serif; padding: 24px; max-width: 700px; }
+    button { margin: 6px 4px; padding: 8px 16px; cursor: pointer; border-radius: 6px; border: none; }
+    .btn-ok  { background: #2ecc71; color: white; }
+    .btn-err { background: #e74c3c; color: white; }
+    .btn-all { background: #3498db; color: white; }
+    #log { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px;
+           font-family: monospace; font-size: 14px; min-height: 120px; white-space: pre-wrap; }
+    .ok   { color: #2ecc71; }
+    .err  { color: #e74c3c; }
+    .info { color: #f39c12; }
+    section { border: 1px solid #ccc; padding: 16px; margin-bottom: 20px; border-radius: 8px; }
+    h3 { margin-top: 0; }
+  </style>
+</head>
+<body>
+<h1>Promise 흐름 실습</h1>
+
+<div style="background:#f8f9fa; border-left:4px solid #3498db; padding:20px; margin-bottom:28px; border-radius:0 8px 8px 0; line-height:1.8;">
+
+  <h2 style="margin-top:0; color:#2c3e50;">Promise란?</h2>
+
+  <p>
+    <b>Promise</b>는 <b>"지금 당장 값이 없지만, 나중에 성공하거나 실패할 작업"을 표현하는 객체</b>예요.<br>
+    서버에서 데이터를 가져오는 것처럼, 얼마나 걸릴지 모르는 비동기 작업을 다룰 때 사용해요.
+  </p>
+
+  <h3 style="color:#2980b9;">왜 필요한가?</h3>
+  <p>
+    JavaScript는 <b>싱글 스레드</b>라 한 번에 하나의 작업만 처리해요.<br>
+    서버 응답을 기다리는 동안 브라우저가 멈추면 안 되니까, JS는 기다리는 대신 <b>"나중에 결과 오면 이걸 실행해"</b> 라고 등록만 하고 다른 일을 먼저 처리해요.<br>
+    이 "나중에 할 일을 등록하는 방식"이 <b>비동기 처리</b>이고, Promise는 그걸 깔끔하게 표현하는 도구예요.
+  </p>
+
+  <h3 style="color:#2980b9;">Promise의 3가지 상태</h3>
+  <table style="border-collapse:collapse; width:100%;">
+    <tr style="background:#3498db; color:white;">
+      <th style="padding:8px 12px; text-align:left;">상태</th>
+      <th style="padding:8px 12px; text-align:left;">의미</th>
+      <th style="padding:8px 12px; text-align:left;">전환 가능</th>
+    </tr>
+    <tr style="border-bottom:1px solid #ddd;">
+      <td style="padding:8px 12px;"><b>pending</b></td>
+      <td style="padding:8px 12px;">아직 결과를 모름 (대기 중)</td>
+      <td style="padding:8px 12px;">fulfilled 또는 rejected로 전환</td>
+    </tr>
+    <tr style="border-bottom:1px solid #ddd; background:#f0f0f0;">
+      <td style="padding:8px 12px;"><b>fulfilled</b></td>
+      <td style="padding:8px 12px;">성공적으로 완료됨</td>
+      <td style="padding:8px 12px;">더 이상 변하지 않음 (불변)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;"><b>rejected</b></td>
+      <td style="padding:8px 12px;">실패 (에러 발생)</td>
+      <td style="padding:8px 12px;">더 이상 변하지 않음 (불변)</td>
+    </tr>
+  </table>
+  <p style="font-size:13px; color:#666;">※ 한번 fulfilled/rejected가 되면 상태가 절대 바뀌지 않아요.</p>
+
+  <h3 style="color:#2980b9;">기본 문법</h3>
+  <pre style="background:#1e1e1e; color:#d4d4d4; padding:14px; border-radius:6px; overflow-x:auto; font-size:13px;">
+<span style="color:#c586c0;">const</span> p = <span style="color:#c586c0;">new</span> <span style="color:#4ec9b0;">Promise</span>((resolve, reject) => {
+  <span style="color:#6a9955;">// 비동기 작업 수행</span>
+  <span style="color:#c586c0;">if</span> (성공) resolve(결과값);   <span style="color:#6a9955;">// → fulfilled</span>
+  <span style="color:#c586c0;">else</span>     reject(<span style="color:#c586c0;">new</span> Error()); <span style="color:#6a9955;">// → rejected</span>
+});
+
+p.<span style="color:#dcdcaa;">then</span>(result => { <span style="color:#6a9955;">/* 성공 시 실행 */</span> })
+ .<span style="color:#dcdcaa;">catch</span>(err    => { <span style="color:#6a9955;">/* 실패 시 실행 */</span> })
+ .<span style="color:#dcdcaa;">finally</span>(()  => { <span style="color:#6a9955;">/* 성공/실패 상관없이 항상 실행 */</span> });</pre>
+
+  <h3 style="color:#2980b9;">흐름 요약</h3>
+  <pre style="background:#f0f0f0; padding:12px; border-radius:6px; font-size:13px; color:#333;">
+  new Promise(...)
+        │
+        ▼
+    [pending]  ← 지금 이 상태
+     /      \
+resolve()  reject()
+   /            \
+[fulfilled]  [rejected]
+    │               │
+  .then()        .catch()
+  </pre>
+
+  <h3 style="color:#2980b9;">async / await 와의 관계</h3>
+  <p>
+    <code>async/await</code>는 Promise를 더 읽기 쉽게 쓰는 <b>문법적 편의 기능(syntactic sugar)</b>이에요.<br>
+    내부 동작은 완전히 동일하고, <code>await</code>는 Promise가 fulfilled/rejected 될 때까지 그 함수 안에서만 기다려요.<br>
+    브라우저 전체를 멈추는 게 아님에 주의하세요.
+  </p>
+
+  <h3 style="color:#2980b9;">.then / .catch 인자에는 뭐가 들어오나?</h3>
+  <p>
+    <code>.then(result => ...)</code>의 <code>result</code>에는 <b><code>resolve(값)</code>에 넘긴 값</b>이 자동으로 전달돼요.<br>
+    <code>.catch(err => ...)</code>의 <code>err</code>에는 <b><code>reject(값)</code>에 넘긴 값</b>이 자동으로 전달돼요.<br>
+    체이닝일 때는 <b>이전 <code>.then</code> 안에서 <code>return</code>한 값</b>이 다음 <code>.then</code>의 인자가 돼요. (<code>return</code> 생략 시 <code>undefined</code>)
+  </p>
+  <pre style="background:#1e1e1e; color:#d4d4d4; padding:14px; border-radius:6px; overflow-x:auto; font-size:13px;">
+<span style="color:#4ec9b0;">Promise</span>.resolve(<span style="color:#b5cea8;">10</span>)
+  .<span style="color:#dcdcaa;">then</span>(n => n * <span style="color:#b5cea8;">2</span>)       <span style="color:#6a9955;">// return 20</span>
+  .<span style="color:#dcdcaa;">then</span>(n => n + <span style="color:#b5cea8;">5</span>)       <span style="color:#6a9955;">// n = 20,  return 25</span>
+  .<span style="color:#dcdcaa;">then</span>(n => console.<span style="color:#dcdcaa;">log</span>(n)); <span style="color:#6a9955;">// 25</span></pre>
+
+  <h3 style="color:#2980b9;">fetch는 왜 바로 .then을 붙일 수 있나?</h3>
+  <p>
+    <code>fetch()</code>는 브라우저에 내장된 함수인데, <b>호출하면 Promise를 반환</b>하도록 만들어져 있어요.<br>
+    그래서 반환값이 Promise 객체이고, Promise니까 바로 <code>.then</code>을 붙일 수 있는 거예요.
+  </p>
+  <pre style="background:#1e1e1e; color:#d4d4d4; padding:14px; border-radius:6px; overflow-x:auto; font-size:13px;">
+<span style="color:#6a9955;">// fetch 내부가 대략 이렇게 생겼다고 이해하면 됨</span>
+<span style="color:#c586c0;">function</span> <span style="color:#dcdcaa;">fetch</span>(url) {
+  <span style="color:#c586c0;">return</span> <span style="color:#c586c0;">new</span> <span style="color:#4ec9b0;">Promise</span>((resolve, reject) => {
+    <span style="color:#6a9955;">// HTTP 요청 보내고</span>
+    <span style="color:#6a9955;">// 응답 오면 → resolve(response)</span>
+    <span style="color:#6a9955;">// 네트워크 오류면 → reject(error)</span>
+  });
+}
+
+<span style="color:#6a9955;">// 그래서 이게 가능한 것</span>
+<span style="color:#dcdcaa;">fetch</span>(<span style="color:#ce9178;">'https://api.example.com/user'</span>)  <span style="color:#6a9955;">// Promise 반환</span>
+  .<span style="color:#dcdcaa;">then</span>(res => res.<span style="color:#dcdcaa;">json</span>())            <span style="color:#6a9955;">// .then 가능</span>
+  .<span style="color:#dcdcaa;">then</span>(data => console.<span style="color:#dcdcaa;">log</span>(data))
+  .<span style="color:#dcdcaa;">catch</span>(err => console.<span style="color:#dcdcaa;">error</span>(err));</pre>
+  <p style="font-size:13px; color:#666;">
+    ※ <code>fetch</code>를 특별한 무언가로 볼 필요 없어요. <br>
+    이 파일의 <code>fakeApi()</code>와 구조가 완전히 동일한, <b>"Promise를 반환하는 함수"</b>일 뿐이에요.
+  </p>
+
+</div>
+
+<div id="log">버튼을 눌러 실행하세요...</div>
+
+<!-- ─────────────────────────────────────────── -->
+<section>
+  <h3>1. Promise 기본 (상태: pending → fulfilled / rejected)</h3>
+  <p>Promise는 <b>pending → fulfilled(성공) 또는 rejected(실패)</b> 세 가지 상태만 존재.</p>
+  <button class="btn-ok"  onclick="demo1(true)">성공 케이스</button>
+  <button class="btn-err" onclick="demo1(false)">실패 케이스</button>
+</section>
+
+<section>
+  <h3>2. .then / .catch 체이닝</h3>
+  <p>성공은 .then, 실패는 .catch. 체인 중 어디서든 throw 하면 .catch로 점프.</p>
+  <button class="btn-ok"  onclick="demo2(true)">체인 성공</button>
+  <button class="btn-err" onclick="demo2(false)">체인 도중 실패</button>
+</section>
+
+<section>
+  <h3>3. async / await (Promise의 문법 설탕)</h3>
+  <p>await는 Promise가 끝날 때까지 기다림. 내부 동작은 .then/.catch와 동일.</p>
+  <button class="btn-ok"  onclick="demo3(true)">await 성공</button>
+  <button class="btn-err" onclick="demo3(false)">await 실패</button>
+</section>
+
+<section>
+  <h3>4. Promise.all — 여러 개를 동시에</h3>
+  <p>모두 성공하면 결과 배열 반환. <b>하나라도 실패하면 즉시 reject.</b></p>
+  <button class="btn-all" onclick="demo4(true)">모두 성공</button>
+  <button class="btn-err" onclick="demo4(false)">하나 실패</button>
+</section>
+
+<section>
+  <h3>5. Promise.allSettled — 실패해도 3개 다 출력</h3>
+  <p>
+    실패한 게 있어도 <b>전부 끝날 때까지 기다리고 3개 모두 결과를 줌.</b><br>
+    각 결과는 성공이면 <code>{ status: 'fulfilled', value }</code>, 실패면 <code>{ status: 'rejected', reason }</code>.
+  </p>
+  <button class="btn-all" onclick="demo5()">실행 (2번째 요청이 실패)</button>
+</section>
+
+<script>
+  const log = document.getElementById('log');
+  function print(msg, type = '') {
+    const cls = type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info';
+    log.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+    log.scrollTop = log.scrollHeight;
+  }
+  function clear() { log.innerHTML = ''; }
+
+  // 공통: ms 후에 성공/실패하는 가짜 비동기 함수
+  function fakeApi(ms, shouldResolve, value) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (shouldResolve) resolve(value);
+        else reject(new Error('서버 오류!'));
+      }, ms);
+    });
+  }
+
+  // ── 1. 기본 ──
+  function demo1(ok) {
+    clear();
+    print('⏳ pending 상태...', 'info');
+
+    fakeApi(800, ok, '데이터 수신 완료')
+      .then(result => print(`✅ fulfilled: ${result}`, 'ok'))
+      .catch(err   => print(`❌ rejected: ${err.message}`, 'err'));
+  }
+
+  // ── 2. 체이닝 ──
+  function demo2(ok) {
+    clear();
+    print('⏳ 1단계 시작...', 'info');
+
+    fakeApi(600, true, 10)          // 항상 성공
+      .then(num => {
+        print(`  1단계 성공: ${num}`, 'ok');
+        if (!ok) throw new Error('2단계에서 터짐');  // ok=false면 여기서 throw
+        return num * 2;
+      })
+      .then(num => {
+        print(`  2단계 성공: ${num}`, 'ok');
+        return num + 5;
+      })
+      .then(num => print(`  3단계 성공: ${num}`, 'ok'))
+      .catch(err => print(`❌ catch: ${err.message}`, 'err'));
+  }
+
+  // ── 3. async/await ──
+  async function demo3(ok) {
+    clear();
+    print('⏳ async 함수 실행 중...', 'info');
+    try {
+      const result = await fakeApi(800, ok, '유저 정보');
+      print(`✅ await 결과: ${result}`, 'ok');
+    } catch (err) {
+      print(`❌ try-catch 에러: ${err.message}`, 'err');
+    }
+  }
+
+  // ── 4. Promise.all ──
+  function demo4(ok) {
+    clear();
+    print('⏳ 3개 요청을 동시에 보냄...', 'info');
+
+    Promise.all([
+      fakeApi(400,  true,  '사용자'),
+      fakeApi(700,  ok,    '게시글'),   // ok=false면 이게 실패
+      fakeApi(300,  true,  '댓글'),
+    ])
+      .then(([user, post, comment]) =>
+        print(`✅ 전부 성공: [${user}, ${post}, ${comment}]`, 'ok'))
+      .catch(err =>
+        print(`❌ 하나 실패로 전체 취소: ${err.message}`, 'err'));
+  }
+
+  // ── 5. Promise.allSettled ──
+  function demo5() {
+    clear();
+    print('⏳ 3개 요청 동시에 보냄 (2번째는 실패할 것)...', 'info');
+
+    Promise.allSettled([
+      fakeApi(400, true,  '사용자'),
+      fakeApi(700, false, '게시글'),  // 이게 실패해도
+      fakeApi(300, true,  '댓글'),
+    ])
+      .then(results => {
+        // 실패해도 .catch 가 아닌 .then 으로 옴 — 3개 전부
+        results.forEach((result, i) => {
+          if (result.status === 'fulfilled') {
+            print(`  [${i+1}] ✅ fulfilled: ${result.value}`, 'ok');
+          } else {
+            print(`  [${i+1}] ❌ rejected: ${result.reason.message}`, 'err');
+          }
+        });
+      });
+  }
+</script>
+</body>
+</html>
