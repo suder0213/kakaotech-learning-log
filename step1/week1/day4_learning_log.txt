@@ -25,7 +25,7 @@ SLM 계열 모델은 tool_call 기능이 없는 모델도 있음
 [Prompt Engineering 기법들]
 
 zero shot <-> few shot: 딥러닝의 개념
-- 학습 없이 결과 도출 <-> fine tuning 학습 후 결과 도출
+- 학습 없이 결과 도출 <-> 적은 수의 예시를 사용하여 학습 후 결과 도출
 LLM으로 넘어오면서 개념이 확장
 - 답변 예시를 주지 않고 LLM이 임의로 추론 <-> 예상되는 입력과 원하는 답변의 형식과 예시를 제공
 instruction
