@@ -1,0 +1,28 @@
+Router 방식과 LangChian의 차이
+- Router: 사용자가 적절한 API콜을 골라서 사용
+- LangChian: 사용자가 입력한 프롬프트를 분석하여 LLM이 적절한 tool과 parameter를 골라 사용
+	- tool을 만든다고 끝나는게 아니라 agent별로 tool을 등록해줘야 함 -> 그 agent는 등록된 tool만 사용
+
+tools: json형식으로 Prompt에 붙여서 전달하는 형식. 따라서 tool이 많아지면 도구를 잘못 선택하거나 토큰 초과할 가능성 높아짐
+- 따라서 multi-agent 구조를 사용하여 tool을 적절히 분배하는 것이 중요함
+
+LangChain은 특별한 마법같은게 아니라 단순히 프롬프트에 tools를 추가해서 LLM에게 요청하는 것이고, LLM이 돌려주는 json형태의 답변을 파싱하여 실제 함수를 수행하는 일종의 인터페이스 역할의 도구라고 볼 수 있음
+- OpenAI 모델은 API에 tools parameter가 있고 tool을 써야 한다고 판단하면 그에 따라 json 형식으로 답변하게 파인튜닝 되어있다고 함
+
+Gradio
+- 예를 들자면 SQLAlchemy가 원래 SQL로 작성해야 할 것을 python으로 처리하게 해주는 것처럼 HTML, CSS, JS를 python 코드로 처리하게 해줌
+- 다만 JS는 별도 파일이 아닌 문자열로 넘겨줘야 하는 제약이 있는 등 트레이드 오프가 있음
+
+Agent를 바라보는 새로운 관점
+- LLM과 묶여 있는 것이 아님. Agent는 단순 LLM에게 전달할 프롬프트 뭉치와, 그 결과에 따라 함수를 자동실행 해주는 것일 뿐.
+- 즉 Agent라는 객체로 추상화되긴 했지만 그 본질은 LLM에 프롬프트를 더 붙여 전달하고, 그 결과에 따라 함수 실행 후 결과를 토대로 LLM 답변에 참고하도록 하는 일종의 어뎁터.
+
+Multi-Agent 구조로 갔을 때 호출 흐름
+1. Router(Ochestrator) Agent가 적절한 하부 Agent를 선택
+2. 하부 Agent가 LLM에게 프롬프트 + tools 를 전달하며 호출
+3. LLM이 적절한 tool 선택, 프롬프트에서 parameter 추출
+4. 하부 Agent가 LLM 응답(JSON)을 파싱하여 실제 tool 함수 수행, 결과값을 LLM에게 JSON 문자열로 전달
+5. LLM이 결과를 참고해 최종 답변 생성
+
+이 때 하부 Agent도 tool로 등록됨( tool과 동작원리가 구조적으로 동일함 )
+- 차이는 LLM 호출 여부. 호출하면 Agent, 아니면 Tool

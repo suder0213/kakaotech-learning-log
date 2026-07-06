@@ -1,0 +1,71 @@
+day4
+
+Agent를 잘 구현한다
+
+1. LLM tool_call 횟수를 최소로해서 문제를 해결
+
+2. 최적의 프롬프트를 구성
++ tool_call 잘 작동하도록 설명을 잘 쓰기
++ system prompt를 잘 튜닝
+
+3. trace를 사용한 tool_call 디버깅, 최적화 ( LangSmith 등 )
+
+
+Agent가 어려운 이유
+- 일단 동작은 하는데... 최적화는 어떻게? <- trace를 잘 활용해야 함
+
+
+사용자가 파라미터 값을 제대로 주지 않았을 떄 어떻게 할 것인가?
+- 프롬프트로 해당 경우에 대한 처리를 추가해줘야 함
+
+SLM 계열 모델은 tool_call 기능이 없는 모델도 있음
+- tool_call을 지원하는 모델, Agent로 쓸 수 있는 모델이 정해져 있음
+- 프롬프트를 사용해 fine tuning은 가능하나 애초에 tool_call을 상정하고 만들어진 모델과 성능 차이가 있음
+
+[Prompt Engineering 기법들]
+
+zero shot <-> few shot: 딥러닝의 개념
+- 학습 없이 결과 도출 <-> fine tuning 학습 후 결과 도출
+LLM으로 넘어오면서 개념이 확장
+- 답변 예시를 주지 않고 LLM이 임의로 추론 <-> 예상되는 입력과 원하는 답변의 형식과 예시를 제공
+instruction
+- 어떤 질문에 대해 어떻게 답하라고 지시 
+
+CoT(Chain of Thoughts)
+- 어려운 문제가 있을 때 문제를 쪼개서 단계별로
+
+few-shot은 예시, CoT는 동작 순서
+- LLM: 전체적인 분야의 문제를 해결
+- Agent: 특정 분야의 문제를 더 정확하고 정밀하게 해결
+
+Agent System: Agent의 동작을 기술
+- 기존의 rule base가 아닌, "tool을 기준"으로 동작하게 하는 것이 중요
+- 예를 들어 "Todo 삭제"가 있다면 "Todo 조회" tool을 먼저 사용하여 해당 정보로 처리하는 것이 좋음
+
+Prompt 구조
+1. LLM Prompt
+2. System Prompt
+3. System Prompt(user)
+4. User Prompt
+
+Agent에 가까운 tool과 code에 가까운 tool 존재
+- 좀 더 자연어? 프롬프트에 가까울수록 agentic하다?
+
+[Language Model의 2가지 종류]
+Query Model: Query가 주어지면 단순히 Answer를 반환
+- 초창기에 프롬프트 엔지니어링을 통해 역할을 주고... 이렇게 길어진 것은 한 번의 질문으로 답변을 받아야 하기 때문
+Chatbot Model: 이전의 Answer를 다음 Query에 더해 계속 증강하여 Answer를 반환
+
+
+Agent는 Context 관리가 매우 중요함!
+- Context가 성능에 영향을 크게 미침
+- 전체 Context의 어느정도 차있냐에 따라 성능 저하 발생 가능
+- attention의 한계: Lost in the middle
+-> 대체 방안: md을 사용하여 새 대화를 진행하는 등 작업 단위를 줄여서 진행
+
+meta Cot?
+
+tool의 description에 few shot을 넣어서 동작을 지정도 가능
+
+
+trace <- Agent가 의도대로 작동하는지 확인하는 매우매우매우 중요한 과정

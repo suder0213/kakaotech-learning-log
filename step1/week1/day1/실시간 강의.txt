@@ -1,0 +1,16 @@
+React
+1. 사용자의 질문을 이해하고 Tool 검색
+2. Tool에 맞는 키워드(인자)를 프롬프트에서 추출하여 함수 수행
+
+
+temperature가 낮으면 고정적인 답변
+-> 학습을 할 때 정답에서 먼 값도 허용하는 것임
+
+LangChain: Agent를 만드는데 유용한 툴
+
+Agent의 프롬프트 계층
+LLM Prompt
+ReAct Prompt
+System Prompt
+
+Agent는 상황에 맞는 툴을 잘 선정하고 실행해야 함
