@@ -1,0 +1,56 @@
+MCP 서버: 툴들을 관리하고 쓸 수 있게 해주는 서버
+
+rule base로 할지? 키워드를 LLM이 추출하게 할 지 결정해줘야함
+
+기존의 프로그램에 LLM 도입시, 자연어 출력이 문제가 됨
+-> JSON과 Pydantic BaseModel으로 출력을 구조화
+
+초창기엔 JSON 형식으로 출력하는 기능 X <- few-shot으로 분류
+
+이후 OpenAI에서 JSON 출력을 기본으로 하는 기능 제공
+
+pydantic을 사용한 출력
+- 장점: 간단한 프롬프트, JSON형식으로 쉽게 변환 가능
+- 단점: 가끔 key가 누락됨
+
+pydantic class
+- 장점: key 누락을 null로 처리 가능
+- 단점: parsing 단계가 긺, 오류가 많이 발생
+    파싱 실패 시 대기 시간 길어짐
+
+pydantic 파싱을 LangChain이 하는 경우와 LLM이 제공하는 경우가 있음
+- 성능이 다른 경우가 있음, 대기 시간 길어질 시 제공자를 바꾸는 것 추천
+
+Field: 데이터에 대한 설명 작성 가능 + 없는 데이터도 생성 가능
+@tool(input arg?) <- 데이터 정제?
+
+Literal[]: 리스트 안의 요소 중 하나로 답을 낼 수 있게 만듦
+- Literal["low", "medium", "high"]
+
+class를 만들 때, 만약 다수의 객체를 만들어야 한다면 해당 class 내에 list로 선언하지 말고,
+해당 클래스를 list로 가지는 새로운 class를 선언해서 사용하는 것을 추천
+
+
+[잠깐 트랜스포머 이해를 위한 설명]
+```python
+ex)
+class Todo(BaseModel):
+    name: str
+
+class TodoList(BaseModel):
+    todos: list[Todo]
+```
+
+DNN: 신경망을 여러층 만듦
+MNIST 학습: Flatten 후 정규화 처리
+- 784차원 공간에서 하나의 벡터로 표현됨s
+- 신경망을 지나며 차원이 바뀌면서 표현이 바뀜
+
+vocab: 자연어 처리
+- 자연어->token->id->vector embedding
+---
+
+2주차는 채팅 후 출력이 class에 해당하는 출력이 나오도록 구성
+
+"컨텍스트 윈도우는 소중하다"
++ 서브 에이전트의 범위를 제한하라
