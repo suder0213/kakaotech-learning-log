@@ -1,0 +1,36 @@
+모델의 발전은 막을 수 X
+
+# 관심 분야의 도메인 지식이 중요해짐
+-> 전공, 그 분야에 대한 지식들
+
+AI 설계: ~가 되게 구현해줘 X
+    -> pydantic, type, tool 등의 규칙 등을 포함하여 상세히 설계
+
+structured output이 필요한 이유?: 일정 JSON으로 tool을 호출 해야하는데 키가 누락되거나 잘못된 값이 들어올 수 있음
+-> pydantic을 사용하여 tool의 입력 필터링
+
+<Prompt 중 가장 강력한 지시>
+-> few-shot을 사용한 예시!
+-> few-shot을 통해 참조된 데이터가 똑같은 few-shot을 생성 -> 계속 반복되며 강조됨
+
+구현 내용 spec을 프롬프트로 넣으면서 계획하는 연습을 많이 해봐라
+
+plan 시 도메인 지식과 차이가 나는 부분 발생 -> 이런 부분들을 계속 수정
++ 이게 정말 최선인가? 이 함수가 꼭 필요한가?
+
+2주차 baseline보고 반영 ㄱㄱ
+
+가장 중요한 건 '의도대로 동작하는가'
+
+vocab: LLM의 세상, 이 외의 단어는 인식 불가
+
+커스텀 토큰: 어떤 모델을 학습/동작 시킬 때, tokenize할 vocab 데이터셋에 포함시키는 것
+ex> <bos> <sos>: 문장 시작 / <eos>: 문장 끝
+예를 들어 특정 상황에서 로봇 움직이게 fine tuning -> <walk> - 502 같이 토큰 - 임베딩id
+만약 음악을 만든다면?: 커스텀 토큰으로 '음표' 사용
+
+멀티 모달: 예를들어 텍스트와 이미지를 파악해서 비교 가능
+-> 같은 벡터 공간에 표현할 수 있다면 검색 가능
+Text, Image, Audio, Video(Image+Audio), Document(Text+Image)
+
+https://www.anthropic.com/engineering/building-effective-agents
