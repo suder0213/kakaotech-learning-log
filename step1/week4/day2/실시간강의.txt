@@ -1,0 +1,54 @@
+RAG: Retrieval Augmentated Generation
+
+LangChain: Prompt Chaining
+LlamaIndex: RAG를 구현
+
+현재는 RAG가 Agent로 많이 흡수됨
+
+요즘은 외부 데이터를 불러오면 RAG라 부름
+
+왜 RAG를 쓰는가? -> 성능 부족
+-> LLM은 매우 크기 때문에 업데이트가 어려움 (학습 시간, 비용이 너무 큼)
+-> Prompt로 데이터를 넣어서 해결
+
+Retrieval: Embedding Vector 거리 기반 탐색
+- MIR: Music Info. Retrieval
+- IIR: Image ~
+
+Augmentated: 사용자 질문과 Retrieved 데이터를 합침
+
+Embedding Vector할 때 Mean pool -> 의미가 보존되는가? yes!
+- RAG 데이터를 전부 평균내면 너무 모호해지니까 Chunk 단위로 잘라서 벡터화
+
+초기형 RAG의 치명적 단점: 무조건 외부 데이터를 참조했었음(프롬프트 앞단에 박힘)
+-> Token, Context 낭비
+-> 현재는 Agent를 이용해 Tool로 호출할 수 있게되어 효율적임
+
+VectorDB의 주요 2속성
+1. Client 선언
+- Client: VectorDB를 이제부터 사용하겠다고 선언
+
+2. Collection -> 본체
+- 한 프로세스 내에서 이름이 중복되면 안됨
+
+
+{검색된 데이터, Query, 답변 컨트롤}
+
+RAG를 사용할 때, Systemflow를 CoT 정의 작성해주면 좋음
+ex) SQL 검색했을 때 목록에 없으면 대화 목록 검색해라 등
+
+tool이 많아지면 원하는대로 동작 안 하는 경우 많아짐 -> 의도대로 동작하도록 system prompt 튜닝 필요
+
+
+-------------------------------------------------------
+
+Normalize layer를 attention, mlp 앞에 붙여주면 성능이 올라감
+-> 근데 정확한 이유는 모름. 논문도 추측 (아마 데이터 정리가 잘돼서...)
+
+positional encoding
+
+MoE -> MLP
+
+---------------------------------------------------------
+
+/init -> 코드 베이스 분석하여 CLAUDE.md  생성
