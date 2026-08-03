@@ -1,0 +1,29 @@
+MCP: Model Context Protocol
+
+기존: 함수를 local에 구현
+MCP서버: MCP서버에 있는 tool 정보를 받아와서 사용
+- 사실상 tool_call과 똑같지만, MCP 서버에 구현돼있다는 차이점
+- tool을 내가 직접 구현하지 않아도, tool이 구현된 MCP 서버에서 받아와 사용가능
+
+로컬에서 만들면 MCP서버나 tool 구현은 똑같긴 함
+-> 로컬에서 만들었을 때 장점: 프로그램 뿐 아니라 Claude Code나 Codex 등도 해당 tool을 사용할 수 있음
+
+MCP의 가장 중요한 거
+- tool call을 위해 사용하는거
+- 필요하다면 서버도 구현 가능
+- 일종의 SubAgent라고 볼 수도...
+
+실상은 MCP에 있는 tool과 그걸 사용할 수 있는 Agent를 연결해주기만 하는 것
+
+tool을 구현하기 보단, 관련 MCP 서버를 찾아서 client로 호출해 사용하는 것이 편리
+
+A2A
+- Agent끼리 통신할 수 있는 규약도?
+------------------------------------------
+
+모델 단계에 따라 분기를 잘해서 사용하면 좋음
+- ex) 계획은 sonnet 구현은 opus 검증은 haiku
+
+/doctor: 스킬 최적화
+
+Claude 5 이후 추세: 하네스 엔지니어링 하기보단 좀 풀어줘라? (opus, fable 같은 상위 모델 기준)

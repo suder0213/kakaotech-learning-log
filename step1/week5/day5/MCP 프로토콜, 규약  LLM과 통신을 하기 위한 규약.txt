@@ -1,0 +1,71 @@
+MCP: 프로토콜, 규약 / LLM과 통신을 하기 위한 규약
+
+# Agent 구현 -> MCP(미리 제작한 tool)
+
+- 툴 탐색 (Discovery)
+Agent(정확히는 호스트 역할을 하는 MCP 클라이언트)가 MCP 서버에 연결합니다.
+서버가 제공하는 사용 가능한 Tool의 목록, 각 Tool의 설명, 그리고 필요한 파라미터 스키마(형식)를 받아옵니다.
+
+- 툴 선택 및 파라미터 전달 (Call)
+사용자의 질문을 받은 Agent는 앞서 받아온 Tool 목록을 바탕으로 '어떤 Tool을 사용해야 할지' 판단합니다.
+적절한 Tool을 선택하면, 스키마에 맞춰 파라미터를 생성해 MCP 서버로 실행을 요청합니다.
+
+- 서버 측 실행 및 결과 반환 (Execution & Return)
+MCP 서버는 전달받은 파라미터를 사용해 실제 로컬 환경이나 외부 API에서 연산을 수행합니다 (예: DB 조회, 파일 읽기, 웹 검색 등).
+작업이 완료되면 그 결과 데이터를 다시 Agent에게 반환합니다.
+
+- 최종 응답 생성 (Integration)
+Agent는 MCP 서버로부터 받은 결과값을 해석하여, 사용자에게 제공할 최종적인 답변을 만들어 출력합니다.
+
+사실 MCP 서버의 역할은 tool을 부르는 것 밖에 없음!
+
+LLM(Client) -> MCP(Server)로 tool을 요청
+
+
+```python
+client = MultiServerMCPClient({
+	"deepwiki": {
+		"url": "...."
+	}
+})
+mcp_tools = await client.get_tools()
+```
+-> Context에 tool, mcp_tool의 이름, 설명, 쓰는법 등이 포함됨
+## MCP 서버를 쓸 때는 필요한 것만 사용!! ( Context 낭비 )
+
+위 tool을 create_agent 하던 곳에 tools list에 추가 해주면 됨
+
+-------------------------------------------------------------------------
+
+# Agent -> LLM의 성능부족으로 인해 고안됨
+- LLM 특성상 할루시네이션이 불가피 ( 태생적으로 비결정적, 확률적인 문장 생성 )
+- 조건에 따라 선택된 단어 확률 분포가 달라짐
+- prompt = 조건, LLM의 출력을 결정
+
+few-shot, CoT, rule: Prompt를 보조하여 '조건'을 조종하여 생성하는 텍스트를 의도대로 조종
+- ReACT
+- tool_call: 어떤 기능에 해당하는 함수를 실행해, 결과를 prompt context에 추가하는 것 -> 결국엔 context에 포함하여 조건 강화!
+- tool, mcp, RAG, skills, md 등등... 결국엔 조건(context)를 강화해 LLM이 원하는 출력을 하도록 유도하는 것
+
+기술적인 부분은 딱 하나임. < 어떻게 조건을 잘 만들어서 원하는 출력을 만드는가? >
+- 이를 위한 스킬을 어떻게 적용하냐가 다양할 뿐
+
+tool을 만들 때 함수 구현도 중요하지만 Field나 tool의 description을 잘 써보는 것을 추천
+
++ 사투리 같은거? 이건 따로 해석해주는 과정이 필요할 수도
+
+원하는대로 질문을 쓰고 답변을 받도록 prompt를 쓰는 것이 어려움!
+
+1. few-shot: 예시를 제공, 가장 강력한 방법!
+2. CoT: 대부분의 LLM들이 아마 잘 따를 것임 (흐름 지정)
+
+LLM Embedding -> 대부분 embedding vector로 표현됨(스스로 파악함)
+
+Multi Agent -> Agent끼리 context를 공유하지 않는 문제 있음 -> 그렇다고 모든 tool을 하나의 Agent에 넣기에는 문제가 있음...
+- tool을 잘못 부를 확률 증가, context에 문제가 생김
+
+Sub Agent
+- Main Agent가 Sub Agent에게 일을 시킴
+- Main Agent와 독립된 Context로 수행됨 ( Main Agent의 Context 절약 )
+
+요즘엔 LLM에 대한 신뢰도가 높아져서 점점 LLM에게 많은 일을 할당하는 방향으로 가고 있음
