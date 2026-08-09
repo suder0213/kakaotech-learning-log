@@ -1,0 +1,64 @@
+1~5주차: 싱글 에이전트
+6주차: 서브 에이전트 (멀티 에이전트) -> tool_call
+
+tool_call: prompt + tool 동작, 인자값, 결과값 -> return
+- sub_agent는 tool의 위치에 LLM call을 하는 것이라고 할 수도?
+	-> main agent와 context 독립, main agent의 context 절약
+	- 장점: 동작이 더 잘될 수 있음 (tool 선택 등)
+	- 단점: 비용 증가 (token 증가)
+
+GPT
+- Transformer의 Decoder만 떼와서 text 생성을 시키는 모델 [생성모델]
+
+Embedding dimension
+- 예를 들어 사과를 [맛, 크기, 색] 3차원으로 나타냄
+- 실제 모델은 훨씬 다차원(<1000), 해당 모델은 이해 가능한 특징 공간으로 표현됨
+
+RAG
+- 인베딩 벡터로 검색
+- 단점: 한 저장소에 데이터가 몰리면 검색 능력 폭락
+
+Prompt
+- LLM이나 Agent의 '조건'으로 작용
+- 가장 중요함. 조건을 더 강화
+- 자신이 원하는 결과가 출력될 수 있도록 잘 만들기
+
+
+Prompt / Context Engineering
+1. Zero shot, few shot
+2. Instruction
+3. CoT
+
+좋은 조건을 만드는 것?
+- 해답 x, 코드 x
+	-> 목적에 따른 최적화!
+
+1M context? RAG 무용론?
+- Context가 길어지면 내용을 균일하게 보지 않음
+	-> RAG는 여전히 강력한 역할을 함
+
+# Context Engineering 전략
+1. 외부저장 (md)
+2. 선택 (tool, prompt, skill + RAG)
+3. 압축 (compact, 그 동안의 대화 압축)
+4. 분할 (Sub-Agent)
+
+SLM 파인 튜닝
+- LoRA, QLoRA
+
+
+평가 Q A set를 만들어서 Agent 평가
+
+MCP 서버
+- 이미 구현된 MCP 서버에 tool을 요청한다
+
+
+LLM 이후?
+- RL을 이용한 학습 방법
+	- 기계를 조작할 수 있는 커스텀 토큰 생성
+		-> 피지컬 AI
+	- 왜 휴머노이드?
+		-> 사람을 모방한 데이터를 학습해서...
+- 월드 모델
+	- 사람 -> 시각 청각을 위한 학습
+	-> 물리 세계 자체를 인식하는 학습

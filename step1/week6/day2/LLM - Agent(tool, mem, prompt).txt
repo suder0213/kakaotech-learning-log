@@ -1,0 +1,46 @@
+LLM -> Agent(tool, mem, prompt)
+
+실제 사람들이 처리하는 일 -> 이전 task의 결과가 다음 task에 영향을 준다
+
+single agent에서는 위와 같은 구조의 호출 제어가 어려움
+-> agent 하나가 1개 task를 잘 처리하니 여러개를 쓰자 = Multi-Agent
+
+24-25년 과도기 -> tool call 방식의 agent system이 정립됨
+
+Sub-Agent workflows
+- 각 기능을 담당하는 Agent를 Tool로 구현
+- Supervisor Agent가 Sub Agent를 호출
+
++ Sworm패턴같은 것도 있음
+
+Multi-Agent workflows
+- Sub-Agent나 sworm은 LLM의 판단을 믿는 반면, multi-agent는 사람이 특정 조건에 따라 조종하는 느낌
+- 'state'라는 것을 관리
+- 지금은 tool_call을 통해 자동화되는 것이, state에 따라 if문으로 분기됨
+	- 초기 라마 인덱스, 랭그래프
+
+멀티/서브 에이전트에서 가장 중요하게 다뤄지는 것
+- context를 전달하는 방법
+	- 문서화? 요약해서 전달?
+
+Sub-Agent: Agent를 tool처럼 불러서? function invoke
+- Main Agent의 Context에 과정이 쌓이지 않음 -> context 절약, 성능 향상 기대
+- agent마다 tool을 할당하여 사용
+- middleware: HITL(human in the loop)로 어느정도 제어도 가능
+- task를 잘게 쪼개서 전문가들을 만들고, 그 전문가들을 어떻게 부를까... 하는거
+
+Sub-Agent의 trace
+- 다계층의 sub-agent는 별도로 result를 받아서 trace 구현을 좀 해줘야 함
+
+
+-------------------------------------------------------------------------------------------------
+
+LLM as a Judge
+- 평가하려면 Q, A 쌍 필수
+- 질문과 답변의 의도가 명확히 반영되었는가?
+- 절차, 판정 규칙을 지정해주는 것이 좋음
+- LLM이 판정한 것과 사람이 판정한게 비슷하면 ㄱㅊ다고 판단
+- 사실상 prompt로 '컴파일러'를 튜닝하는 느낌?
+
+--------------------------------------------------------------------------------------
+
